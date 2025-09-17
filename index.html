@@ -21,9 +21,10 @@
         }
         .controls-hidden .action-buttons { display: none; }
         .tab-btn.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .main-nav-btn.active { background-color: #4f46e5; color: white; }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100">
 
     <!-- Modal de Login -->
     <div id="loginOverlay" class="login-modal-overlay hidden"></div>
@@ -41,57 +42,85 @@
         </div>
     </div>
 
-    <!-- Conteúdo Principal -->
-    <div id="appContainer" class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-6">
-        <!-- Cabeçalho -->
-        <div class="relative text-center pb-4 border-b">
-            <h1 class="text-3xl font-bold text-gray-800">Agendador de Devoluções</h1>
-            <p class="text-gray-500 mt-1">Gerencie coletas e transportadoras de forma simples.</p>
-            <button id="authButton" class="absolute top-0 right-0 bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 text-sm">Login para Editar</button>
-        </div>
-
-        <!-- Abas -->
-        <div class="flex border-b">
-            <button id="schedulesTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 active">Agendamentos</button>
-            <button id="carriersTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700">Transportadoras</button>
-            <button id="historyTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700">Histórico</button>
-        </div>
-
-        <!-- Conteúdo das Abas -->
-        <div id="schedulesView">
-            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Novo Agendamento</h2>
-                <form id="scheduleForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div><label for="date" class="block text-sm font-medium text-gray-600 mb-1">Data</label><input type="date" id="date" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
-                    <div><label for="carrier" class="block text-sm font-medium text-gray-600 mb-1">Transportadora</label><select id="carrier" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"><option value="">Selecione...</option></select></div>
-                    <div><label for="volume" class="block text-sm font-medium text-gray-600 mb-1">Volumes</label><input type="number" id="volume" placeholder="Ex: 50" min="1" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
-                    <button type="submit" id="submitButton" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Agendar</button>
-                </form>
+    <!-- Layout Principal -->
+    <div class="flex h-screen bg-gray-100">
+        <!-- Menu Lateral -->
+        <aside class="w-64 bg-white shadow-md flex flex-col">
+            <div class="p-4 border-b">
+                <h1 class="text-xl font-bold text-gray-800">Menu Principal</h1>
             </div>
-            <div class="mt-6"><h2 class="text-xl font-semibold text-gray-700 mb-4">Próximas Coletas</h2><div id="scheduleList" class="space-y-3 controls-hidden"></div></div>
-        </div>
-
-        <div id="carriersView" class="hidden">
-            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Nova Transportadora</h2>
-                <form id="carrierForm" class="flex items-end gap-4">
-                    <div class="flex-grow"><label for="carrierName" class="block text-sm font-medium text-gray-600 mb-1">Nome da Transportadora</label><input type="text" id="carrierName" placeholder="Ex: Jadlog" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
-                    <button type="submit" id="addCarrierBtn" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Adicionar</button>
-                </form>
-                <p id="carrierMessage" class="text-sm mt-2 h-4"></p>
+            <nav class="flex-1 p-4 space-y-2">
+                <button id="navAgendamento" class="main-nav-btn w-full text-left py-2 px-4 rounded-md font-medium transition-colors active">Agendamento de Devoluções</button>
+                <button id="navDadosColeta" class="main-nav-btn w-full text-left py-2 px-4 rounded-md font-medium transition-colors">Dados de Coletas</button>
+                <button id="navProgramacao" class="main-nav-btn w-full text-left py-2 px-4 rounded-md font-medium transition-colors">Programação</button>
+            </nav>
+            <div class="p-4 border-t">
+                 <button id="authButton" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 text-sm">Login para Editar</button>
             </div>
-            <div class="mt-6"><h2 class="text-xl font-semibold text-gray-700 mb-4">Transportadoras Cadastradas</h2><div id="carrierList" class="space-y-3 controls-hidden"></div></div>
-        </div>
+        </aside>
 
-        <div id="historyView" class="hidden">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Histórico de Coletas</h2>
-            <div id="historyList" class="space-y-3"></div>
-        </div>
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            <div id="agendamentoView">
+                <div class="flex border-b mb-4">
+                    <button id="schedulesTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 active">Agendamentos</button>
+                    <button id="carriersTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700">Transportadoras</button>
+                    <button id="historyTab" class="tab-btn py-2 px-4 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700">Histórico</button>
+                </div>
+
+                <div id="schedulesView">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner"><h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Novo Agendamento</h2><form id="scheduleForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"><div><label for="date" class="block text-sm font-medium text-gray-600 mb-1">Data</label><input type="date" id="date" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div><div><label for="carrier" class="block text-sm font-medium text-gray-600 mb-1">Transportadora</label><select id="carrier" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"><option value="">Selecione...</option></select></div><div><label for="volume" class="block text-sm font-medium text-gray-600 mb-1">Volumes</label><input type="number" id="volume" placeholder="Ex: 50" min="1" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div><button type="submit" id="submitButton" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Agendar</button></form></div>
+                    <div class="mt-6"><h2 class="text-xl font-semibold text-gray-700 mb-4">Próximas Coletas</h2><div id="scheduleList" class="space-y-3 controls-hidden"></div></div>
+                </div>
+                <div id="carriersView" class="hidden">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner"><h2 class="text-xl font-semibold text-gray-700 mb-4">Adicionar Nova Transportadora</h2><form id="carrierForm" class="flex items-end gap-4"><div class="flex-grow"><label for="carrierName" class="block text-sm font-medium text-gray-600 mb-1">Nome da Transportadora</label><input type="text" id="carrierName" placeholder="Ex: Jadlog" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div><button type="submit" id="addCarrierBtn" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Adicionar</button></form><p id="carrierMessage" class="text-sm mt-2 h-4"></p></div>
+                    <div class="mt-6"><h2 class="text-xl font-semibold text-gray-700 mb-4">Transportadoras Cadastradas</h2><div id="carrierList" class="space-y-3 controls-hidden"></div></div>
+                </div>
+                <div id="historyView" class="hidden">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Histórico de Coletas</h2><div id="historyList" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <div id="dadosColetaView" class="hidden">
+                 <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Cadastrar Dados de Coleta</h2>
+                    <form id="collectionDataForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div><label for="driverName" class="block text-sm font-medium text-gray-600 mb-1">Nome do Motorista</label><input type="text" id="driverName" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
+                        <div><label for="collectionCarrier" class="block text-sm font-medium text-gray-600 mb-1">Transportadora</label><select id="collectionCarrier" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"><option value="">Selecione...</option></select></div>
+                        <div><label for="licensePlate" class="block text-sm font-medium text-gray-600 mb-1">Placa</label><input type="text" id="licensePlate" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
+                         <div><label for="collectionTime" class="block text-sm font-medium text-gray-600 mb-1">Horário</label><input type="text" id="collectionTime" placeholder="Ex: 14:00 - 14:30" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
+                        <div class="md:col-span-2"><label for="driverDocument" class="block text-sm font-medium text-gray-600 mb-1">Documento do Motorista</label><input type="text" id="driverDocument" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-200"></div>
+                        <button type="submit" id="addCollectionDataBtn" class="md:col-span-2 w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700">Cadastrar</button>
+                    </form>
+                    <p id="collectionDataMessage" class="text-sm mt-2 h-4"></p>
+                </div>
+                <div class="mt-6"><h2 class="text-xl font-semibold text-gray-700 mb-4">Dados de Coletas Cadastrados</h2><div id="collectionDataList" class="space-y-3"></div></div>
+            </div>
+            
+            <div id="programacaoView" class="hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Montar Programação de Coleta</h2>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner mb-6">
+                    <label for="programmingDate" class="block text-sm font-medium text-gray-700 mb-1">Selecione a Data da Programação</label>
+                    <input type="date" id="programmingDate" class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Motoristas Disponíveis</h3>
+                        <div id="availableDriversList" class="space-y-3"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Programados para o Dia</h3>
+                        <div id="dailyScheduleList" class="space-y-3 controls-hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, collection, addDoc, deleteDoc, query, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, collection, addDoc, deleteDoc, query, updateDoc, setDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyApzdNrajfS1QpTIIQQhA-8K83XeJK0Tpk",
@@ -103,136 +132,163 @@
         };
 
         let app, db, userId;
-        let currentSchedules = [], currentCarriers = [];
-        let unsubSchedules = null, unsubCarriers = null, unsubHistory = null;
+        let currentSchedules = [], currentCarriers = [], currentCollectionData = [], currentProgramming = {};
+        let unsubSchedules = null, unsubCarriers = null, unsubHistory = null, unsubCollectionData = null, unsubProgramming = null;
         let isLoggedIn = false;
         
         const $ = (selector) => document.querySelector(selector);
         
         const loginOverlay = $('#loginOverlay'), loginContainer = $('#loginContainer'), loginForm = $('#loginForm'), loginError = $('#loginError');
         const closeLoginModalBtn = $('#closeLoginModal'), authButton = $('#authButton');
+        const navAgendamento = $('#navAgendamento'), navDadosColeta = $('#navDadosColeta'), navProgramacao = $('#navProgramacao');
+        const agendamentoView = $('#agendamentoView'), dadosColetaView = $('#dadosColetaView'), programacaoView = $('#programacaoView');
         const schedulesView = $('#schedulesView'), carriersView = $('#carriersView'), historyView = $('#historyView');
         const schedulesTab = $('#schedulesTab'), carriersTab = $('#carriersTab'), historyTab = $('#historyTab');
         const scheduleForm = $('#scheduleForm'), dateInput = $('#date'), carrierSelect = $('#carrier'), volumeInput = $('#volume'), submitButton = $('#submitButton'), scheduleList = $('#scheduleList');
         const carrierForm = $('#carrierForm'), carrierNameInput = $('#carrierName'), addCarrierBtn = $('#addCarrierBtn'), carrierList = $('#carrierList'), carrierMessage = $('#carrierMessage');
         const historyList = $('#historyList');
+        const collectionDataForm = $('#collectionDataForm'), driverNameInput = $('#driverName'), collectionCarrierSelect = $('#collectionCarrier'), licensePlateInput = $('#licensePlate'), driverDocumentInput = $('#driverDocument'), collectionTimeInput = $('#collectionTime'), addCollectionDataBtn = $('#addCollectionDataBtn'), collectionDataMessage = $('#collectionDataMessage'), collectionDataList = $('#collectionDataList');
+        const programmingDateInput = $('#programmingDate');
+        const availableDriversList = $('#availableDriversList');
+        const dailyScheduleList = $('#dailyScheduleList');
 
         function formatDisplayDate(dateString) {
             const date = new Date(dateString + 'T00:00:00-03:00');
             const dayOfWeek = date.toLocaleDateString('pt-BR', { weekday: 'long' });
             const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            return {
-                fullDate: formattedDate,
-                dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
-            };
+            return { fullDate: formattedDate, dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1) };
         }
 
         function renderSchedules(schedules) {
             scheduleList.innerHTML = ''; 
             if (schedules.length === 0) { scheduleList.innerHTML = `<div class="text-center py-8 px-4 bg-gray-50 rounded-lg"><p class="text-gray-500">Nenhum agendamento futuro encontrado.</p></div>`; return; }
-            
             schedules.sort((a, b) => new Date(a.date) - new Date(b.date));
             schedules.forEach(schedule => {
                 const { fullDate, dayOfWeek } = formatDisplayDate(schedule.date);
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'schedule-item bg-white p-4 rounded-lg shadow-md border flex flex-col md:flex-row items-start md:items-center justify-between gap-4';
                 itemDiv.dataset.id = schedule.id;
-                itemDiv.innerHTML = `
-                    <div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
-                        <div><p class="text-sm font-medium text-gray-500">Data</p><p class="text-lg font-semibold text-gray-800">${fullDate}</p></div>
-                        <div><p class="text-sm font-medium text-gray-500">Dia da Semana</p><p class="text-lg font-semibold text-gray-800">${dayOfWeek}</p></div>
-                        <div class="col-span-2 md:col-span-1"><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-lg font-semibold text-gray-800">${schedule.carrier}</p></div>
-                    </div>
-                    <div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0">
-                         <div class="text-center md:text-right flex-1"><p class="text-sm font-medium text-gray-500">Volumes</p><p class="text-2xl font-bold text-indigo-600">${schedule.volume}</p></div>
-                         <div class="flex action-buttons">
-                            <button data-id="${schedule.id}" class="edit-btn text-gray-400 hover:text-indigo-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg></button>
-                            <button data-id="${schedule.id}" class="delete-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                        </div>
-                    </div>`;
+                itemDiv.innerHTML = `<div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 w-full"><div><p class="text-sm font-medium text-gray-500">Data</p><p class="text-lg font-semibold text-gray-800">${fullDate}</p></div><div><p class="text-sm font-medium text-gray-500">Dia da Semana</p><p class="text-lg font-semibold text-gray-800">${dayOfWeek}</p></div><div class="col-span-2 md:col-span-1"><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-lg font-semibold text-gray-800">${schedule.carrier}</p></div></div><div class="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0"><div class="text-center md:text-right flex-1"><p class="text-sm font-medium text-gray-500">Volumes</p><p class="text-2xl font-bold text-indigo-600">${schedule.volume}</p></div><div class="flex action-buttons"><button data-id="${schedule.id}" class="edit-btn text-gray-400 hover:text-indigo-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg></button><button data-id="${schedule.id}" class="delete-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></div>`;
                 scheduleList.appendChild(itemDiv);
             });
         }
-        
+
         function renderCarriers(carriers) {
             carrierList.innerHTML = ''; 
             if (carriers.length === 0) { carrierList.innerHTML = `<div class="text-center py-8 px-4 bg-white border rounded-lg"><p class="text-gray-500">Nenhuma transportadora cadastrada.</p></div>`; return; }
-            
             carriers.sort((a, b) => a.name.localeCompare(b.name));
             carriers.forEach(carrier => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'bg-white p-3 rounded-lg shadow-md border flex items-center justify-between';
-                itemDiv.innerHTML = `<p class="text-gray-800 font-medium">${carrier.name}</p>
-                    <div class="action-buttons"><button data-id="${carrier.id}" class="delete-carrier-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`;
+                itemDiv.innerHTML = `<p class="text-gray-800 font-medium">${carrier.name}</p><div class="action-buttons"><button data-id="${carrier.id}" class="delete-carrier-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`;
                 carrierList.appendChild(itemDiv);
             });
         }
-        
+
         function renderHistory(historyItems) {
             historyList.innerHTML = '';
             if (historyItems.length === 0) { historyList.innerHTML = `<div class="text-center py-8 px-4 bg-gray-50 rounded-lg"><p class="text-gray-500">Nenhum registro no histórico.</p></div>`; return; }
-            
             historyItems.sort((a, b) => new Date(b.date) - new Date(a.date));
             historyItems.forEach(item => {
                 const { fullDate, dayOfWeek } = formatDisplayDate(item.date);
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'bg-white p-4 rounded-lg shadow-md border flex flex-col md:flex-row items-start md:items-center justify-between gap-4 opacity-80';
-                itemDiv.innerHTML = `
-                    <div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
-                        <div><p class="text-sm font-medium text-gray-500">Data</p><p class="text-lg font-semibold text-gray-700">${fullDate}</p></div>
-                        <div><p class="text-sm font-medium text-gray-500">Dia da Semana</p><p class="text-lg font-semibold text-gray-700">${dayOfWeek}</p></div>
-                        <div class="col-span-2 md:col-span-1"><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-lg font-semibold text-gray-700">${item.carrier}</p></div>
-                    </div>
-                    <div class="text-center md:text-right flex-1"><p class="text-sm font-medium text-gray-500">Volumes</p><p class="text-2xl font-bold text-gray-600">${item.volume}</p></div>`;
+                itemDiv.innerHTML = `<div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4 w-full"><div><p class="text-sm font-medium text-gray-500">Data</p><p class="text-lg font-semibold text-gray-700">${fullDate}</p></div><div><p class="text-sm font-medium text-gray-500">Dia da Semana</p><p class="text-lg font-semibold text-gray-700">${dayOfWeek}</p></div><div class="col-span-2 md:col-span-1"><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-lg font-semibold text-gray-700">${item.carrier}</p></div></div><div class="text-center md:text-right flex-1"><p class="text-sm font-medium text-gray-500">Volumes</p><p class="text-2xl font-bold text-gray-600">${item.volume}</p></div>`;
                 historyList.appendChild(itemDiv);
             });
         }
-
-        function populateCarrierDropdown(carriers) {
-            const currentVal = carrierSelect.value;
-            carrierSelect.innerHTML = '<option value="">Selecione...</option>';
-            carriers.sort((a, b) => a.name.localeCompare(b.name));
-            carriers.forEach(c => {
-                const option = document.createElement('option');
-                option.value = c.name;
-                option.textContent = c.name;
-                carrierSelect.appendChild(option);
+        
+        function renderCollectionData(data) {
+            collectionDataList.innerHTML = '';
+            if (data.length === 0) { collectionDataList.innerHTML = `<div class="text-center py-8 px-4 bg-white border rounded-lg"><p class="text-gray-500">Nenhum dado de coleta cadastrado.</p></div>`; return; }
+            data.sort((a, b) => a.driverName.localeCompare(b.driverName));
+            data.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'bg-white p-4 rounded-lg shadow-md border grid grid-cols-2 md:grid-cols-7 gap-4 items-center';
+                itemDiv.innerHTML = `
+                    <div class="md:col-span-2"><p class="text-sm font-medium text-gray-500">Motorista</p><p class="font-semibold text-gray-800">${item.driverName}</p></div>
+                    <div><p class="text-sm font-medium text-gray-500">Documento</p><p class="text-gray-800">${item.driverDocument}</p></div>
+                    <div><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-gray-800">${item.carrier}</p></div>
+                    <div><p class="text-sm font-medium text-gray-500">Placa</p><p class="text-gray-800">${item.licensePlate}</p></div>
+                    <div><p class="text-sm font-medium text-gray-500">Horário</p><p class="text-gray-800">${item.collectionTime}</p></div>
+                    <div class="flex items-center justify-end action-buttons"><button data-id="${item.id}" class="delete-collection-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`;
+                collectionDataList.appendChild(itemDiv);
             });
-            carrierSelect.value = currentVal;
         }
 
+        function renderProgrammingScreen() {
+            const selectedDate = programmingDateInput.value;
+            if (!selectedDate) {
+                availableDriversList.innerHTML = '<p class="text-sm text-gray-500">Selecione uma data para ver os motoristas.</p>';
+                dailyScheduleList.innerHTML = '<p class="text-sm text-gray-500">Selecione uma data para ver a programação.</p>';
+                return;
+            }
+            const dailySchedule = currentProgramming[selectedDate]?.scheduledDrivers || [];
+            const scheduledDriverIds = dailySchedule.map(d => d.id);
+            availableDriversList.innerHTML = '';
+            if (currentCollectionData.length === 0) {
+                 availableDriversList.innerHTML = '<p class="text-sm text-gray-500">Nenhum motorista cadastrado em "Dados de Coleta".</p>';
+            } else {
+                currentCollectionData.forEach(driver => {
+                    const isScheduled = scheduledDriverIds.includes(driver.id);
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `bg-white p-3 rounded-lg shadow-md border flex justify-between items-center ${isScheduled ? 'opacity-50' : ''}`;
+                    itemDiv.innerHTML = `<div><p class="font-semibold text-gray-800">${driver.driverName}</p><p class="text-sm text-gray-600">${driver.carrier} - ${driver.licensePlate}</p><p class="text-xs text-gray-500">Doc: ${driver.driverDocument}</p><p class="text-xs text-gray-500">Horário: ${driver.collectionTime}</p></div><button data-id="${driver.id}" class="schedule-driver-btn bg-green-500 text-white font-semibold py-1 px-3 rounded-md text-sm hover:bg-green-600 action-buttons" ${isScheduled ? 'disabled' : ''}>Programar</button>`;
+                    availableDriversList.appendChild(itemDiv);
+                });
+            }
+            dailyScheduleList.innerHTML = '';
+            if (dailySchedule.length === 0) {
+                dailyScheduleList.innerHTML = '<p class="text-sm text-gray-500">Nenhum motorista programado para esta data.</p>';
+            } else {
+                dailySchedule.forEach(driver => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'bg-white p-3 rounded-lg shadow-md border flex justify-between items-center';
+                    itemDiv.innerHTML = `<div><p class="font-semibold text-gray-800">${driver.driverName}</p><p class="text-sm text-gray-600">${driver.carrier} - ${driver.licensePlate}</p><p class="text-xs text-gray-500">Doc: ${driver.driverDocument}</p><p class="text-xs text-gray-500">Horário: ${driver.collectionTime}</p></div><button data-id="${driver.id}" class="unschedule-driver-btn text-gray-400 hover:text-red-500 p-2 rounded-full action-buttons"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>`;
+                    dailyScheduleList.appendChild(itemDiv);
+                });
+            }
+             updateAuthStateUI();
+        }
+
+        function populateCarrierDropdown(carriers) {
+            const currentScheduleVal = carrierSelect.value;
+            const currentCollectionVal = collectionCarrierSelect.value;
+            [carrierSelect, collectionCarrierSelect].forEach(select => {
+                select.innerHTML = '<option value="">Selecione...</option>';
+                carriers.sort((a, b) => a.name.localeCompare(b.name));
+                carriers.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.name;
+                    option.textContent = c.name;
+                    select.appendChild(option);
+                });
+            });
+            carrierSelect.value = currentScheduleVal;
+            collectionCarrierSelect.value = currentCollectionVal;
+        }
+        
         function showMessage(element, message, isError = false, duration = 3000) {
             element.textContent = message;
             element.className = `text-sm mt-2 h-4 ${isError ? 'text-red-500' : 'text-green-600'}`;
-            if (duration > 0) {
-                setTimeout(() => {
-                    element.textContent = '';
-                    element.className = 'text-sm mt-2 h-4';
-                }, duration);
-            }
+            if (duration > 0) { setTimeout(() => { element.textContent = ''; element.className = 'text-sm mt-2 h-4'; }, duration); }
         }
 
         async function addSchedule(e) {
             e.preventDefault();
             if (!isLoggedIn) { toggleLoginModal(true); return; }
             if (!db || !userId) return;
-
             const date = dateInput.value;
             const carrier = carrierSelect.value;
             const volume = parseInt(volumeInput.value, 10);
-
             if (date && carrier && volume > 0) {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Agendando...';
                 try {
                     await addDoc(collection(db, 'users', userId, 'schedules'), { date, carrier, volume, createdAt: new Date() });
                     scheduleForm.reset();
-                } catch (error) {
-                    console.error("Erro ao adicionar agendamento: ", error);
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Agendar';
-                }
+                } catch (error) { console.error("Erro ao adicionar agendamento: ", error); }
+                finally { submitButton.disabled = false; submitButton.textContent = 'Agendar'; }
             }
         }
 
@@ -240,31 +296,22 @@
             const target = e.target;
             if (!target.closest('.action-buttons') && !target.closest('.save-btn') && !target.closest('.cancel-btn')) return;
             if (!isLoggedIn) { toggleLoginModal(true); return; }
-            
             const itemDiv = target.closest('.schedule-item');
             const docId = itemDiv?.dataset.id;
-            
             const deleteBtn = target.closest('.delete-btn');
             if (deleteBtn && confirm('Tem certeza que deseja excluir este agendamento?')) {
                 try { await deleteDoc(doc(db, 'users', userId, 'schedules', docId)); }
                 catch (error) { console.error("Erro ao deletar agendamento: ", error); }
                 return;
             }
-
             const editBtn = target.closest('.edit-btn');
             if (editBtn) {
                 const schedule = currentSchedules.find(s => s.id === docId);
                 let carrierOptions = '';
                 currentCarriers.forEach(c => carrierOptions += `<option value="${c.name}" ${c.name === schedule.carrier ? 'selected' : ''}>${c.name}</option>`);
-                itemDiv.innerHTML = `
-                    <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 w-full items-center">
-                        <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-500">Transportadora</label><select class="edit-carrier w-full px-2 py-1 border border-gray-300 rounded-md">${carrierOptions}</select></div>
-                        <div><label class="block text-sm font-medium text-gray-500">Volumes</label><input type="number" value="${schedule.volume}" min="1" class="edit-volume w-full px-2 py-1 border border-gray-300 rounded-md"></div>
-                        <div class="flex gap-2 justify-self-end"><button data-id="${docId}" class="save-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md text-sm">Salvar</button><button class="cancel-btn bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-md text-sm">Cancelar</button></div>
-                    </div>`;
+                itemDiv.innerHTML = `<div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 w-full items-center"><div class="md:col-span-2"><label class="block text-sm font-medium text-gray-500">Transportadora</label><select class="edit-carrier w-full px-2 py-1 border border-gray-300 rounded-md">${carrierOptions}</select></div><div><label class="block text-sm font-medium text-gray-500">Volumes</label><input type="number" value="${schedule.volume}" min="1" class="edit-volume w-full px-2 py-1 border border-gray-300 rounded-md"></div><div class="flex gap-2 justify-self-end"><button data-id="${docId}" class="save-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md text-sm">Salvar</button><button class="cancel-btn bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-md text-sm">Cancelar</button></div></div>`;
                 return;
             }
-
             const saveBtn = target.closest('.save-btn');
             if (saveBtn) {
                 const newCarrier = itemDiv.querySelector('.edit-carrier').value.trim();
@@ -275,7 +322,6 @@
                 }
                 return;
             }
-
             if (target.closest('.cancel-btn')) { renderSchedules(currentSchedules); }
         }
 
@@ -290,14 +336,9 @@
                     carrierForm.reset();
                     showMessage(carrierMessage, 'Transportadora adicionada com sucesso!');
                 } 
-                catch (error) { 
-                    console.error("Erro ao adicionar transportadora:", error);
-                    showMessage(carrierMessage, 'Erro ao adicionar. Tente novamente.', true);
-                }
+                catch (error) { console.error("Erro ao adicionar transportadora:", error); showMessage(carrierMessage, 'Erro ao adicionar. Tente novamente.', true); }
                 finally { addCarrierBtn.disabled = false; }
-            } else if (carrierName) {
-                showMessage(carrierMessage, 'Esta transportadora já existe.', true);
-            }
+            } else if (carrierName) { showMessage(carrierMessage, 'Esta transportadora já existe.', true); }
         }
 
         async function handleCarrierListClick(e) {
@@ -310,11 +351,73 @@
             }
         }
 
+        async function addCollectionData(e) {
+            e.preventDefault();
+            if (!isLoggedIn) { toggleLoginModal(true); return; }
+            const driverName = driverNameInput.value.trim();
+            const carrier = collectionCarrierSelect.value;
+            const licensePlate = licensePlateInput.value.trim();
+            const driverDocument = driverDocumentInput.value.trim();
+            const collectionTime = collectionTimeInput.value.trim();
+
+            if (driverName && carrier && licensePlate && driverDocument && collectionTime) {
+                addCollectionDataBtn.disabled = true;
+                try {
+                    await addDoc(collection(db, 'users', userId, 'collectionData'), { driverName, carrier, licensePlate, driverDocument, collectionTime, createdAt: new Date() });
+                    collectionDataForm.reset();
+                    showMessage(collectionDataMessage, 'Dados cadastrados com sucesso!');
+                } catch (error) { console.error("Erro ao adicionar dados de coleta:", error); showMessage(collectionDataMessage, 'Erro ao cadastrar. Tente novamente.', true); }
+                finally { addCollectionDataBtn.disabled = false; }
+            }
+        }
+        
+        async function handleCollectionDataListClick(e) {
+            const deleteBtn = e.target.closest('.delete-collection-btn');
+            if (!deleteBtn) return;
+            if (!isLoggedIn) { 
+                toggleLoginModal(true); 
+                return; 
+            }
+            // Ação de exclusão direta para garantir funcionamento.
+            try { 
+                await deleteDoc(doc(db, 'users', userId, 'collectionData', deleteBtn.dataset.id)); 
+            }
+            catch (error) { 
+                console.error("Erro ao deletar dados de coleta:", error); 
+            }
+        }
+        
+        async function handleScheduleDriver(e) {
+            const scheduleBtn = e.target.closest('.schedule-driver-btn');
+            if (!scheduleBtn || !isLoggedIn) { if (!isLoggedIn) toggleLoginModal(true); return; }
+            const driverId = scheduleBtn.dataset.id;
+            const selectedDate = programmingDateInput.value;
+            const driverData = currentCollectionData.find(d => d.id === driverId);
+            if (driverData && selectedDate) {
+                const docRef = doc(db, 'users', userId, 'programming', selectedDate);
+                try { await setDoc(docRef, { scheduledDrivers: arrayUnion({ id: driverData.id, driverName: driverData.driverName, carrier: driverData.carrier, licensePlate: driverData.licensePlate, driverDocument: driverData.driverDocument, collectionTime: driverData.collectionTime }) }, { merge: true }); }
+                catch (error) { console.error("Erro ao programar motorista:", error); }
+            }
+        }
+        
+        async function handleUnscheduleDriver(e) {
+            const unscheduleBtn = e.target.closest('.unschedule-driver-btn');
+            if (!unscheduleBtn || !isLoggedIn) { if (!isLoggedIn) toggleLoginModal(true); return; }
+            const driverId = unscheduleBtn.dataset.id;
+            const selectedDate = programmingDateInput.value;
+            const dailySchedule = currentProgramming[selectedDate]?.scheduledDrivers || [];
+            const driverData = dailySchedule.find(d => d.id === driverId);
+             if (driverData && selectedDate) {
+                const docRef = doc(db, 'users', userId, 'programming', selectedDate);
+                try { await updateDoc(docRef, { scheduledDrivers: arrayRemove(driverData) }); }
+                catch (error) { console.error("Erro ao remover motorista da programação:", error); }
+            }
+        }
+
         async function archivePastSchedules() {
             if (!isLoggedIn || !db || !userId || currentSchedules.length === 0) return;
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-
             for (const schedule of currentSchedules) {
                 const scheduleDate = new Date(schedule.date + 'T00:00:00-03:00');
                 if (scheduleDate < today) {
@@ -330,7 +433,7 @@
 
         function attachFirestoreListeners() {
             if (!db || !userId) return;
-            if (unsubSchedules) unsubSchedules(); if (unsubCarriers) unsubCarriers(); if (unsubHistory) unsubHistory();
+            if (unsubSchedules) unsubSchedules(); if (unsubCarriers) unsubCarriers(); if (unsubHistory) unsubHistory(); if (unsubCollectionData) unsubCollectionData(); if(unsubProgramming) unsubProgramming();
             
             unsubSchedules = onSnapshot(query(collection(db, 'users', userId, 'schedules')), snap => {
                 const schedules = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -345,6 +448,18 @@
                 populateCarrierDropdown(carriers);
             });
             unsubHistory = onSnapshot(query(collection(db, 'users', userId, 'history')), snap => renderHistory(snap.docs.map(d => ({id: d.id, ...d.data()}))));
+            
+            unsubCollectionData = onSnapshot(query(collection(db, 'users', userId, 'collectionData')), snap => {
+                 const data = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                 currentCollectionData = data;
+                 renderCollectionData(data);
+                 renderProgrammingScreen();
+            });
+            unsubProgramming = onSnapshot(query(collection(db, 'users', userId, 'programming')), snap => {
+                currentProgramming = {};
+                snap.forEach(doc => { currentProgramming[doc.id] = doc.data(); });
+                renderProgrammingScreen();
+            });
         }
         
         function handleLogin(e) {
@@ -372,41 +487,67 @@
         
         function updateAuthStateUI() {
             const isLocked = !isLoggedIn;
-            [dateInput, carrierSelect, volumeInput, carrierNameInput].forEach(el => {
-                el.disabled = isLocked;
-                el.classList.toggle('bg-gray-200', isLocked);
-                el.classList.toggle('bg-white', !isLocked);
+            const allInputs = document.querySelectorAll('main input, main select');
+            const allButtons = document.querySelectorAll('main button[type="submit"]');
+            
+            allInputs.forEach(el => {
+                if(el.id !== 'programmingDate') {
+                    el.disabled = isLocked;
+                    el.classList.toggle('bg-gray-200', isLocked);
+                    el.classList.toggle('bg-white', !isLocked);
+                }
             });
-            [submitButton, addCarrierBtn].forEach(btn => {
+            allButtons.forEach(btn => {
                 btn.disabled = isLocked;
                 btn.classList.toggle('opacity-50', isLocked);
                 btn.classList.toggle('cursor-not-allowed', isLocked);
             });
-            scheduleList.classList.toggle('controls-hidden', isLocked);
-            carrierList.classList.toggle('controls-hidden', isLocked);
+            
+            // Oculta/mostra o botão de navegação de Dados de Coleta
+            navDadosColeta.classList.toggle('hidden', isLocked);
+
+            // Se o usuário deslogar enquanto estiver na view de Dados de Coleta, volta para Agendamento
+            if (isLocked && !dadosColetaView.classList.contains('hidden')) {
+                switchMainView('agendamento');
+            }
+
+            // Estas listas devem ter apenas os botões de ação escondidos
+            [scheduleList, carrierList, dailyScheduleList].forEach(list => list.classList.toggle('controls-hidden', isLocked));
+            
+            // Estas listas devem ser completamente escondidas
+            [availableDriversList, collectionDataList].forEach(list => list.classList.toggle('hidden', isLocked));
+
             authButton.textContent = isLoggedIn ? 'Sair' : 'Login para Editar';
             authButton.classList.toggle('bg-indigo-600', isLocked); authButton.classList.toggle('hover:bg-indigo-700', isLocked);
             authButton.classList.toggle('bg-red-500', !isLocked); authButton.classList.toggle('hover:bg-red-600', !isLocked);
         }
 
         function switchTab(tab) {
-            const isSchedules = tab === 'schedules';
-            const isCarriers = tab === 'carriers';
-            const isHistory = tab === 'history';
-
+            const isSchedules = tab === 'schedules', isCarriers = tab === 'carriers', isHistory = tab === 'history';
             schedulesTab.classList.toggle('active', isSchedules);
             carriersTab.classList.toggle('active', isCarriers);
             historyTab.classList.toggle('active', isHistory);
-
             schedulesView.classList.toggle('hidden', !isSchedules);
             carriersView.classList.toggle('hidden', !isCarriers);
             historyView.classList.toggle('hidden', !isHistory);
+        }
+        
+        function switchMainView(view) {
+            const isAgendamento = view === 'agendamento', isDadosColeta = view === 'dadosColeta', isProgramacao = view === 'programacao';
+            navAgendamento.classList.toggle('active', isAgendamento);
+            navDadosColeta.classList.toggle('active', isDadosColeta);
+            navProgramacao.classList.toggle('active', isProgramacao);
+            agendamentoView.classList.toggle('hidden', !isAgendamento);
+            dadosColetaView.classList.toggle('hidden', !isDadosColeta);
+            programacaoView.classList.toggle('hidden', !isProgramacao);
         }
 
         function main() {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
-            userId = "tbx"; // ID fixo para o usuário da aplicação
+            userId = "tbx";
+            const today = new Date().toISOString().split('T')[0];
+            programmingDateInput.value = today;
             attachFirestoreListeners();
             updateAuthStateUI();
         }
@@ -415,6 +556,9 @@
         loginForm.addEventListener('submit', handleLogin);
         closeLoginModalBtn.addEventListener('click', () => toggleLoginModal(false));
         loginOverlay.addEventListener('click', () => toggleLoginModal(false));
+        navAgendamento.addEventListener('click', () => switchMainView('agendamento'));
+        navDadosColeta.addEventListener('click', () => switchMainView('dadosColeta'));
+        navProgramacao.addEventListener('click', () => switchMainView('programacao'));
         scheduleForm.addEventListener('submit', addSchedule);
         scheduleList.addEventListener('click', handleScheduleListClick);
         carrierForm.addEventListener('submit', addCarrier);
@@ -422,7 +566,12 @@
         schedulesTab.addEventListener('click', () => switchTab('schedules'));
         carriersTab.addEventListener('click', () => switchTab('carriers'));
         historyTab.addEventListener('click', () => switchTab('history'));
-        
+        collectionDataForm.addEventListener('submit', addCollectionData);
+        collectionDataList.addEventListener('click', handleCollectionDataListClick);
+        programmingDateInput.addEventListener('change', renderProgrammingScreen);
+        availableDriversList.addEventListener('click', handleScheduleDriver);
+        dailyScheduleList.addEventListener('click', handleUnscheduleDriver);
+
         main();
     </script>
 </body>
