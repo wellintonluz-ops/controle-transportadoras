@@ -295,6 +295,7 @@
             if (dailySchedule.length === 0) {
                 dailyScheduleList.innerHTML = '<p class="text-sm text-gray-500">Nenhum motorista programado para esta data.</p>';
             } else {
+                dailySchedule.sort((a, b) => a.collectionTime.localeCompare(b.collectionTime));
                 dailySchedule.forEach(driver => {
                     const itemDiv = document.createElement('div');
                     const collectedClass = driver.collected ? 'bg-green-100' : 'bg-white';
