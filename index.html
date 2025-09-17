@@ -297,22 +297,24 @@
             } else {
                 dailySchedule.forEach(driver => {
                     const itemDiv = document.createElement('div');
-                    const collectedClass = driver.collected ? 'opacity-60 bg-green-50' : '';
-                    const lineThroughClass = driver.collected ? 'line-through' : '';
-                    itemDiv.className = `bg-white p-3 rounded-lg shadow-md border flex justify-between items-center ${collectedClass}`;
+                    const collectedClass = driver.collected ? 'bg-green-100' : 'bg-white';
+                    const lineThroughClass = driver.collected ? 'line-through text-gray-500' : '';
+                    itemDiv.className = `p-3 rounded-lg shadow-md border flex justify-between items-center ${collectedClass}`;
                     itemDiv.innerHTML = `
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-3 flex-1">
                             <input type="checkbox" data-id="${driver.originalId}" class="toggle-collected-btn h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" ${driver.collected ? 'checked' : ''}>
                             <div>
                                 <p class="font-semibold text-gray-800 ${lineThroughClass}">${driver.driverName}</p>
                                 <p class="text-sm text-gray-600 ${lineThroughClass}">${driver.carrier} - ${driver.licensePlate}</p>
                                 <p class="text-xs text-gray-500 ${lineThroughClass}">Doc: ${driver.driverDocument}</p>
-                                <p class="text-xs text-gray-500 ${lineThroughClass}">Horário: ${driver.collectionTime}</p>
                             </div>
                         </div>
-                        <button data-id="${driver.originalId}" class="unschedule-driver-btn text-gray-400 hover:text-red-500 p-2 rounded-full action-buttons">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>`;
+                        <div class="flex items-center">
+                            <p class="text-lg font-bold text-indigo-600 mr-4 ${lineThroughClass}">${driver.collectionTime}</p>
+                            <button data-id="${driver.originalId}" class="unschedule-driver-btn text-gray-400 hover:text-red-500 p-2 rounded-full action-buttons">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>`;
                     dailyScheduleList.appendChild(itemDiv);
                 });
             }
