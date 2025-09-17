@@ -105,8 +105,8 @@
                     <input type="date" id="programmingDate" class="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+                <div id="programmingGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="availableDriversContainer">
                         <h3 class="text-xl font-semibold text-gray-700 mb-4">Motoristas Disponíveis</h3>
                         <div id="availableDriversList" class="space-y-3"></div>
                     </div>
@@ -258,14 +258,18 @@
             data.sort((a, b) => a.driverName.localeCompare(b.driverName));
             data.forEach(item => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = 'bg-white p-4 rounded-lg shadow-md border grid grid-cols-2 md:grid-cols-7 gap-4 items-center';
+                itemDiv.className = 'collection-item bg-white p-4 rounded-lg shadow-md border grid grid-cols-2 md:grid-cols-7 gap-4 items-center';
+                itemDiv.dataset.id = item.id;
                 itemDiv.innerHTML = `
                     <div class="md:col-span-2"><p class="text-sm font-medium text-gray-500">Motorista</p><p class="font-semibold text-gray-800">${item.driverName}</p></div>
                     <div><p class="text-sm font-medium text-gray-500">Documento</p><p class="text-gray-800">${item.driverDocument}</p></div>
                     <div><p class="text-sm font-medium text-gray-500">Transportadora</p><p class="text-gray-800">${item.carrier}</p></div>
                     <div><p class="text-sm font-medium text-gray-500">Placa</p><p class="text-gray-800">${item.licensePlate}</p></div>
                     <div><p class="text-sm font-medium text-gray-500">Horário</p><p class="text-gray-800">${item.collectionTime}</p></div>
-                    <div class="flex items-center justify-end action-buttons"><button data-id="${item.id}" class="delete-collection-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>`;
+                    <div class="flex items-center justify-end action-buttons">
+                        <button data-id="${item.id}" class="edit-collection-btn text-gray-400 hover:text-indigo-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg></button>
+                        <button data-id="${item.id}" class="delete-collection-btn text-gray-400 hover:text-red-500 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="pointer-events:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                    </div>`;
                 collectionDataList.appendChild(itemDiv);
             });
         }
@@ -464,17 +468,74 @@
         }
         
         async function handleCollectionDataListClick(e) {
-            const deleteBtn = e.target.closest('.delete-collection-btn');
-            if (!deleteBtn) return;
-            if (!isLoggedIn) { 
-                toggleLoginModal(true); 
-                return; 
+            const target = e.target;
+            const deleteBtn = target.closest('.delete-collection-btn');
+            const editBtn = target.closest('.edit-collection-btn');
+            const saveBtn = target.closest('.save-collection-btn');
+            const cancelBtn = target.closest('.cancel-collection-btn');
+
+            if (!isLoggedIn) {
+                if (deleteBtn || editBtn || saveBtn || cancelBtn) {
+                    toggleLoginModal(true);
+                }
+                return;
             }
-            try { 
-                await deleteDoc(doc(db, 'users', userId, 'collectionData', deleteBtn.dataset.id)); 
+
+            const itemDiv = target.closest('.collection-item');
+            const docId = itemDiv?.dataset.id;
+
+            if (deleteBtn) {
+                if (confirm('Tem certeza que deseja excluir estes dados?')) {
+                    try {
+                        await deleteDoc(doc(db, 'users', userId, 'collectionData', docId));
+                    } catch (error) {
+                        console.error("Erro ao deletar dados de coleta:", error);
+                    }
+                }
+                return;
             }
-            catch (error) { 
-                console.error("Erro ao deletar dados de coleta:", error); 
+
+            if (editBtn) {
+                const item = currentCollectionData.find(d => d.id === docId);
+
+                let carrierOptions = '';
+                currentCarriers.forEach(c => {
+                    carrierOptions += `<option value="${c.name}" ${c.name === item.carrier ? 'selected' : ''}>${c.name}</option>`;
+                });
+
+                itemDiv.innerHTML = `
+                    <div class="md:col-span-2"><input type="text" value="${item.driverName}" class="edit-driverName w-full p-1 border rounded text-sm"></div>
+                    <div><input type="text" value="${item.driverDocument}" class="edit-driverDocument w-full p-1 border rounded text-sm"></div>
+                    <div><select class="edit-carrier w-full p-1 border rounded text-sm">${carrierOptions}</select></div>
+                    <div><input type="text" value="${item.licensePlate}" class="edit-licensePlate w-full p-1 border rounded text-sm"></div>
+                    <div><input type="text" value="${item.collectionTime}" class="edit-collectionTime w-full p-1 border rounded text-sm"></div>
+                    <div class="flex items-center justify-end gap-2">
+                        <button data-id="${docId}" class="save-collection-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded-md text-sm">Salvar</button>
+                        <button class="cancel-collection-btn bg-gray-400 hover:bg-gray-500 text-white font-semibold py-1 px-2 rounded-md text-sm">Cancelar</button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (saveBtn) {
+                const updatedData = {
+                    driverName: itemDiv.querySelector('.edit-driverName').value.trim(),
+                    driverDocument: itemDiv.querySelector('.edit-driverDocument').value.trim(),
+                    carrier: itemDiv.querySelector('.edit-carrier').value,
+                    licensePlate: itemDiv.querySelector('.edit-licensePlate').value.trim(),
+                    collectionTime: itemDiv.querySelector('.edit-collectionTime').value.trim(),
+                };
+                try {
+                    await updateDoc(doc(db, 'users', userId, 'collectionData', docId), updatedData);
+                } catch (error) {
+                    console.error("Erro ao atualizar dados de coleta:", error);
+                }
+                return;
+            }
+
+            if (cancelBtn) {
+                renderCollectionData(currentCollectionData);
+                return;
             }
         }
         
@@ -629,13 +690,25 @@
                 switchMainView('agendamento');
             }
 
-            [scheduleList, carrierList].forEach(list => list.classList.toggle('controls-hidden', isLocked));
+            // Hide action buttons on lists
+            [scheduleList, carrierList, dailyScheduleList].forEach(list => list.classList.toggle('controls-hidden', isLocked));
             
-            document.querySelectorAll('.unschedule-driver-btn, .schedule-driver-btn').forEach(btn => {
-                btn.style.display = isLocked ? 'none' : 'block';
-            });
-            
-            [availableDriversList, collectionDataList].forEach(list => list.classList.toggle('hidden', isLocked));
+            // Hide entire container for Collection Data List
+            const collectionDataListContainer = collectionDataList.parentElement;
+            collectionDataListContainer.classList.toggle('hidden', isLocked);
+
+            // Adjust layout for Programming View
+            const programmingGrid = $('#programmingGrid');
+            const availableDriversContainer = $('#availableDriversContainer');
+            if (isLocked) {
+                availableDriversContainer.classList.add('hidden');
+                programmingGrid.classList.remove('md:grid-cols-2');
+                programmingGrid.classList.add('md:grid-cols-1');
+            } else {
+                availableDriversContainer.classList.remove('hidden');
+                programmingGrid.classList.add('md:grid-cols-2');
+                programmingGrid.classList.remove('md:grid-cols-1');
+            }
 
             authButton.textContent = isLoggedIn ? 'Sair' : 'Login para Editar';
             authButton.classList.toggle('bg-indigo-600', isLocked); authButton.classList.toggle('hover:bg-indigo-700', isLocked);
